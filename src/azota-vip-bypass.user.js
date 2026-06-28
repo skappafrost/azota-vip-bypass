@@ -31,6 +31,10 @@
 //   4. ACCEPT THAT YOUR ACCOUNT MAY BE SUSPENDED OR TERMINATED
 //   5. UNDERSTAND THIS IS FOR AUTHORIZED SECURITY TESTING ONLY
 //
+// NGUOI DUNG CHIU HOAN TOAN TRACH NHIEM PHAP LY. TAC GIA KHONG CHIU BAT
+// CU TRACH NHIEM NAO. DAY LA SAN PHAM NGHIEN CUU BAO MAT, KHONG DUOC
+// SU DUNG CHO MUC DICH GIAN LAN, THUONG MAI, HOAC VI PHAM QUY CHE.
+//
 // If you do not agree with ALL of the above, DO NOT install or run this script.
 // ============================================================================
 
