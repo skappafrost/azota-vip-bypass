@@ -1,214 +1,154 @@
-# ⚠️ Azota VIP + Exam Bypass — EDUCATIONAL RESEARCH ONLY
+<div align="center">
 
-[![Version](https://img.shields.io/badge/version-1.0-red?style=flat-square)]()
-[![Tampermonkey](https://img.shields.io/badge/Tampermonkey-✓-yellow?style=flat-square)]()
-[![License](https://img.shields.io/badge/license-MIT-red?style=flat-square)](LICENSE)
+# ⚠️ Azota Ads + VIP Interceptor
+
+### Nghiên cứu bảo mật — API Response Interception trên azota.vn
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Tampermonkey](https://img.shields.io/badge/Tampermonkey-%E2%9C%93-yellow?style=flat-square)](https://www.tampermonkey.net/)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](src/azota-vip-bypass.user.js)
+[![Educational Only](https://img.shields.io/badge/Purpose-Educational%20Research%20Only-red.svg)](#legal-disclaimer)
+
+**⛔ KHÔNG DÀNH CHO SỬ DỤNG THƯỜNG — ĐỌC PHẦN PHÁP LÝ TRƯỚC KHI DÙNG ⛔**
+
+</div>
+
+---
+
+## 📖 Giới thiệu
+
+Repo này chứa một PoC (Proof of Concept) minh hoạ kỹ thuật **client-side API response interception** — một lớp bảo mật thường bị bỏ qua ở các SPA (Single Page Application). Bằng cách hook `XMLHttpRequest.prototype` và `window.fetch`, ta có thể sửa response **trước khi framework (Angular) đọc nó**, từ đó thay đổi hành vi UI: ẩn quảng cáo, mở khoá tính năng VIP.
+
+**Mục đích nghiên cứu:** chứng minh rằng mọi quyết định phân quyền đặt ở client đều có thể bị giả mạo, và backend mới là nơi duy nhất có thể kiểm soát thực sự.
+
+> ⚠️ **Kết quả quan trọng từ đợt verify 2026-09-15:** Gate "bắt đầu thi" của azota hiện **không** phải paywall. Phần lớn tính năng thi cử vẫn mở. Script giải quyết chính là **quảng cáo** (shopie + Google AdSense) và **UI paywall VIP**. Xem [§ Phân tích kỹ thuật](#-phân-tích-kỹ-thuật).
 
 ---
 
 ## 🇻🇳 TIẾNG VIỆT
 
+### ⚖️ TUYÊN BỐ MIỄN TRÁCH NHIỆM PHÁP LÝ (10 ĐIỀU)
+
 > **⚠️ CẢNH BÁO PHÁP LÝ NGHIÊM TRỌNG — ĐỌC TRƯỚC KHI SỬ DỤNG**
 
-Script này được tạo ra **CHỈ VÌ MỤC ĐÍCH NGHIÊN CỨU BẢO MẬT (SECURITY RESEARCH)**. Nó minh hoạ cách một trang web có thể bị can thiệp ở tầng network thông qua Tampermonkey — một kỹ thuật gọi là **API response interception**.
+Script này được tạo ra **CHỈ VÌ MỤC ĐÍCH NGHIÊN CỨU BẢO MẬT**. Nó minh hoạ cách một SPA có thể bị can thiệp ở tầng network thông qua Tampermonkey — kỹ thuật **API response interception**.
 
 **BẰNG VIỆC SỬ DỤNG, TẢI XUỐNG, HOẶC TRIỂN KHAI SCRIPT NÀY, BẠN ĐỒNG Ý VỚI TẤT CẢ CÁC ĐIỀU KHOẢN SAU. NẾU KHÔNG ĐỒNG Ý, KHÔNG ĐƯỢC SỬ DỤNG.**
 
----
-
-### ⚖️ TUYÊN BỐ MIỄN TRỪ TRÁCH NHIỆM PHÁP LÝ (10 ĐIỀU)
-
 #### 1. MỤC ĐÍCH DUY NHẤT
-Script này **CHỈ** dùng để nghiên cứu, phân tích, và giáo dục về bảo mật web. Nó minh hoạ cách API response có thể bị giả mạo ở client-side — một lỗ hổng bảo mật mà các nền tảng thi trực tuyến cần biết để bảo vệ hệ thống của họ.
+Chỉ dùng cho nghiên cứu, phân tích, giáo dục về bảo mật web. Minh hoạ cách API response có thể bị giả mạo client-side — lỗ hổng mà các nền tảng thi trực tuyến cần biết để bảo vệ hệ thống.
 
 #### 2. VI PHẠM PHÁP LUẬT
-Script này **can thiệp vào dữ liệu trả về từ máy chủ**, điều này có thể cấu thành:
-- **Bộ luật Hình sự Việt Nam 2015, Điều 145**: Tội xâm nhập trái phép vào hệ thống máy tính, mạng viễn thông
-- **Bộ luật Hình sự Việt Nam 2015, Điều 226**: Tội xâm phạm bí mật hoặc an toàn thông tin
-- **Nghị định 15/2020/NĐ-CP**: Xử phạt vi phạm hành chính trong lĩnh vực công nghệ thông tin
-- **Computer Fraud and Abuse Act (CFAA) 18 U.S.C. § 1030**: Nếu máy chủ azota.vn có hạ tầng tại Mỹ
-- **Digital Millennium Copyright Act (DMCA) § 1201**: Chống vượt qua kiểm soát truy cập
-- **Vi phạm Điều khoản Dịch vụ (ToS)** của Azota.vn
+Script **can thiệp dữ liệu trả về từ server**, có thể cấu thành:
+- **Luật Hình sự VN 2015, Điều 145** — Xâm nhập trái phép hệ thống máy tính, mạng viễn thông
+- **Luật Hình sự VN 2015, Điều 226** — Xâm phạm bí mật hoặc an toàn thông tin
+- **Nghị định 15/2020/NĐ-CP** — Xử phạt hành chính lĩnh vực CNTT
+- **CFAA 18 U.S.C. § 1030** — Nếu hạ tầng server tại Mỹ
+- **DMCA § 1201** — Chống vượt qua kiểm soát truy cập
+- **Vi phạm Điều khoản Dịch vụ (ToS)** của azota.vn
 
 #### 3. NGƯỜI DÙNG CHỊU HOÀN TOÀN TRÁCH NHIỆM
-Bạn — và **chỉ bạn** — chịu mọi trách nhiệm pháp lý phát sinh từ việc:
-- Cài đặt, sử dụng, hoặc phân phối script này
-- Bị khoá tài khoản, đình chỉ học tập, hoặc buộc thôi học
-- Bị kiện dân sự hoặc truy cứu hình sự
-- Bị phạt tiền, bồi thường thiệt hại, hoặc các chế tài khác
-- Bị tịch thu thiết bị phục vụ điều tra
+Bạn — và **chỉ bạn** — chịu mọi trách nhiệm pháp lý từ việc: cài đặt/sử dụng/phải script; bị khoá tài khoản, đình chỉ học tập, buộc thôi học; bị kiện dân sự hoặc truy cứu hình sự; bị phạt tiền, bồi thường; bị tịch thu thiết bị.
 
 #### 4. TÁC GIẢ KHÔNG CHỊU TRÁCH NHIỆM
-Tác giả (**@skappafrost**, **nexus**, **isvn**) và tất cả người đóng góp **KHÔNG CHỊU BẤT CỨ TRÁCH NHIỆM NÀO**, bao gồm nhưng không giới hạn:
-- Thiệt hại trực tiếp, gián tiếp, ngẫu nhiên, hoặc do hậu quả
-- Mất dữ liệu, mất tài khoản, mất cơ hội học tập
-- Chi phí pháp lý, án phí, tiền bồi thường
-- Tổn thất tinh thần, danh dự, uy tín
+Tác giả (**@skappafrost**, **nexus**, **isvn**) và mọi contributor **KHÔNG CHỊU BẤT KỲ TRÁCH NHIỆM NÀO**, bao gồm nhưng không giới hạn: thiệt hại trực tiếp/gián tiếp/ngẫu nhiên/hậu quả; mất dữ liệu, mất tài khoản, mất cơ hội học tập; chi phí pháp lý, án phí, tiền bồi thường; tổn thất tinh thần, danh dự, uy tín.
 
 #### 5. KHÔNG CÓ SỰ CHO PHÉP
-Script này **KHÔNG** được azota.vn cho phép, chứng thực, hoặc hỗ trợ. Việc sử dụng script là **vi phạm Điều khoản Dịch vụ** của azota.vn và có thể dẫn đến **khoá tài khoản vĩnh viễn**.
+Script **KHÔNG** được azota.vn cho phép, chứng thực, hay hỗ trợ. Sử dụng = **vi phạm ToS**, có thể dẫn đến **khoá tài khoản vĩnh viễn**.
 
 #### 6. CHỈ DÙNG TRÊN HỆ THỐNG CỦA BẠN
-Bạn chỉ được phép chạy script này trên các tài khoản và bài kiểm tra mà **bạn sở hữu hợp pháp**. Không sử dụng trên tài khoản hoặc dữ liệu của người khác.
+Chỉ chạy trên tài khoản/bài kiểm tra **bạn sở hữu hợp pháp**. Không dùng trên tài khoản hay dữ liệu của người khác.
 
 #### 7. KHÔNG PHÂN PHỐI
-Bạn **không được** phân phối, bán, cho thuê, hoặc chia sẻ script này dưới bất kỳ hình thức nào. Việc chia sẻ script cho người khác khiến bạn chịu trách nhiệm pháp lý về hành vi của họ.
+**Không** phân phối, bán, cho thuê, chia sẻ script dưới bất kỳ hình thức nào. Chia sẻ khiến bạn chịu trách nhiệm pháp lý về hành vi của người nhận.
 
 #### 8. KHÔNG MỤC ĐÍCH THƯƠNG MẠI
-Nghiêm cấm sử dụng script này cho bất kỳ mục đích thương mại nào, bao gồm bán dịch vụ "VIP giá rẻ", "hack azota", hoặc bất kỳ hình thức kiếm tiền nào khác.
+Nghiêm cấm dùng cho mục đích thương mại: bán "VIP giá rẻ", "hack azota", hay bất kỳ hình thức kiếm tiền nào.
 
 #### 9. CHẤP NHẬN MỌI RỦI RO
-Bạn **đã được cảnh báo đầy đủ** về rủi ro pháp lý và đồng ý **không khởi kiện, không khiếu nại, không yêu cầu bồi thường** đối với tác giả trong bất kỳ trường hợp nào.
+Bạn **đã được cảnh báo đầy đủ** và đồng ý **không khởi kiện, không khiếu nại, không đòi bồi thường** tác giả trong bất kỳ trường hợp nào.
 
 #### 10. CAM KẾT XÓA KHI CÓ YÊU CẦU
-Nếu Azota.vn hoặc cơ quan chức năng yêu cầu xoá script này, bạn cam kết tuân thủ ngay lập tức.
+Nếu azota.vn hoặc cơ quan chức năng yêu cầu xoá, bạn cam kết tuân thủ ngay lập tức.
+
+> **⚠️ KHÔNG AI CÓ THỂ BẢO VỆ BẠN KHỎI HẬU QUẢ PHÁP LÝ — KỂ CẢ TÁC GIẢ.**
+> Bạn đã được cảnh báo. Cân nhắc kỹ trước khi sử dụng.
 
 ---
 
-> **⚠️ KHÔNG AI CÓ THỂ BẢO VỆ BẠN KHỎI HẬU QUẢ PHÁP LÝ — KỂ CẢ TÁC GIẢ**
->
-> Bạn đã được cảnh báo. Hãy cân nhắc kỹ trước khi sử dụng.
----
+### ⚡ Hướng dẫn cài đặt
 
-## 📖 HƯỚNG DẪN SỬ DỤNG (TIẾNG VIỆT)
+> Script **chạy hoàn toàn tự động trong nền** sau khi cài. Không menu, không nút bấm, không cấu hình.
 
-> **⚡ Script này hoạt động hoàn toàn tự động — bạn không cần làm gì cả!**
+**Bước 1 — Cài Tampermonkey:** [Chrome/Edge/Brave](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) · [Firefox](https://addons.mozilla.org/vi/firefox/addon/tampermonkey/) · Android: [Kiwi Browser](https://play.google.com/store/apps/details?id=com.kiwibrowser.browser) + Tampermonkey
 
-Sau khi cài đặt, script sẽ **tự động chạy ngầm trong nền** (background) mỗi khi bạn truy cập azota.vn.  
-Không có menu, không có nút bấm, không có cài đặt gì thêm. **Chỉ cần cài xong là script tự làm việc.**
+> ⚠️ **Lần đầu cài Tampermonkey:** vào `chrome://extensions/` (hoặc `edge://extensions/`) → tìm Tampermonkey → bật **"Allow user scripts"** (bắt buộc, không bật script sẽ không chạy) → bật thêm **"Allow access to file URLs"** nếu bạn tải file `.user.js` về máy. Sau đó refresh lại trang.
 
----
+**Bước 2 — Cài script:**
 
-### Bước 1: Cài đặt Tampermonkey
+| Cách | Cách làm |
+|------|----------|
+| **A — Tự động (khuyến nghị)** | Mở link raw → Tampermonkey tự nhận → bấm **Install** |
+| **B — Từ URL** | Dashboard → tab **Utilities** → ô "Install from URL" → bấm **Install** |
+| **C — Thủ công** | Dashboard → **Create a new script** → xoá code mẫu → dán nội dung → **Ctrl+S** |
 
-**Trên Google Chrome / Microsoft Edge / Brave:**
-1. Mở: https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
-2. Bấm **"Thêm vào Chrome"** → **"Thêm extension"**
-3. Icon 🎭 xuất hiện ở góc phải trình duyệt
+Link raw:
 
-**Trên Firefox:**
-1. Mở: https://addons.mozilla.org/vi/firefox/addon/tampermonkey/
-2. Bấm **"Thêm vào Firefox"** → **"Thêm"**
+```
+https://raw.githubusercontent.com/skappafrost/azota-vip-bypass/main/src/azota-vip-bypass.user.js
+```
 
-**Trên Android (Kiwi Browser):**
-1. Cài [Kiwi Browser](https://play.google.com/store/apps/details?id=com.kiwibrowser.browser)
-2. Mở Chrome Web Store trong Kiwi → cài Tampermonkey
-
-> **⚠️ Lưu ý cho người mới cài Tampermonkey lần đầu:**
-> Sau khi cài Tampermonkey, script có thể **không hoạt động ngay** nếu bạn chưa bật đúng cấu hình.
->
-> 1. Vào `chrome://extensions/` (hoặc `edge://extensions/` trên Edge)
-> 2. Tìm **Tampermonkey** trong danh sách extension
-> 3. Bật **"Allow user scripts"** (bắt buộc — nếu không bật, script sẽ không chạy)
-> 4. Bật **"Allow access to file URLs"** (tuỳ chọn — chỉ cần nếu bạn tải script từ file .user.js về máy)
->
-> Sau khi bật xong, **refresh lại trang azota.vn** là script hoạt động.
+**Bước 3 — Xong.** Vào `https://azota.vn` → dùng bình thường. Script tự chạy ngầm.
 
 ---
 
-### Bước 2: Cài đặt Script
+### ✅ Kiểm tra script đã hoạt động
 
-**Cách A — Cài tự động (nhanh nhất - khuyến nghị):**
-1. Click link này: `https://raw.githubusercontent.com/skappafrost/azota-vip-bypass/main/src/azota-vip-bypass.user.js`
-2. Tampermonkey tự nhận diện → hiện trang cài đặt
-3. Bấm **"Install"** — **xong!** 🎉
-
-**Cách B — Cài từ URL:**
-1. Bấm icon 🎭 → **Dashboard** → tab **Utilities**
-2. Ô "Install from URL", dán: `https://raw.githubusercontent.com/skappafrost/azota-vip-bypass/main/src/azota-vip-bypass.user.js`
-3. Bấm **"Install"** → xác nhận
-
-**Cách C — Copy-Paste thủ công:**
-1. Bấm icon 🎭 → **Dashboard** → **Create a new script**
-2. Xoá code mẫu → copy nội dung `src/azota-vip-bypass.user.js` từ GitHub
-3. Dán vào → **Ctrl+S** để lưu
+| Cách | Cách làm | Kết quả mong đợi |
+|------|----------|------------------|
+| **1 — Console** | F12 → tab **Console** | Thấy `[AzotaVIP v2.0.0] ready — intercepting 9 endpoint groups` |
+| **2 — Trực quan** | Nhìn trang | Không còn banner quảng cáo, popup "Nâng cấp VIP" |
+| **3 — Log chi tiết** | Console → gõ `AzotaVIP` vào ô filter | Danh sách endpoint đã intercept |
 
 ---
 
-### Bước 3: Script tự động chạy — KHÔNG CẦN LÀM GÌ THÊM
+### ❓ FAQ
 
-Sau khi cài đặt xong:
-1. Mở tab mới → vào `https://azota.vn` → đăng nhập
-2. **Làm bài kiểm tra như bình thường**
-3. **Script tự động làm việc ngầm trong nền** — nó sẽ:
+**1. Cài xong có cần làm gì thêm không?**
+Không. Script chạy hoàn toàn tự động trong nền.
 
-| Tính năng | Tự động? | Mô tả |
-|-----------|----------|-------|
-| 🔓 **Mở khoá VIP** | ✅ | Tự động fake response VIP — tất cả tính năng mở khoá |
-| 🚦 **Bỏ qua tắc nghẽn** | ✅ | Cho phép thi ngay cả khi đông người |
-| ⏭️ **Bỏ qua quảng cáo** | ✅ | Ẩn banner, popup, quảng cáo shopie |
-| 📥 **Tải file không giới hạn** | ✅ | Export Excel, tải tài liệu... |
-| 🧹 **Giao diện sạch** | ✅ | Ẩn popup "Nâng cấp VIP", "Hết hạn gói" |
+**2. Làm sao biết script hoạt động?**
+Console (F12) → tìm `[AzotaVIP v2.0.0] ready`.
 
-> **⚠️ Bạn KHÔNG cần: mở menu · bấm nút · cấu hình · làm bất kỳ thao tác nào khác**
+**3. Script có làm chậm trình duyệt không?**
+Không. Chỉ chạy vài ms mỗi khi có request khớp pattern. Không ảnh hưởng hiệu năng.
 
----
+**4. Tôi có bị khoá tài khoản không?**
+**Có thể.** Script can thiệp API azota.vn, vi phạm ToS. Đọc phần pháp lý ở trên.
 
-### Kiểm tra script đã hoạt động
-
-**Cách 1 — Xem Console (dễ nhất):**
-1. Trên trang azota.vn, bấm **F12** → tab **Console**
-2. Tìm dòng: `[AzotaVIP] Ready — intercepting 8 endpoint patterns`
-3. Nếu thấy → **Script đã chạy thành công!** ✅
-
-**Cách 2 — Kiểm tra trực quan:**
-- Không thấy banner quảng cáo, popup nâng cấp VIP
-- Các tính năng bị khoá (tải file, xem đáp án) đã mở
-- Giờ cao điểm vẫn vào bài kiểm tra được bình thường
-
-**Cách 3 — Xem log chi tiết:**
-1. Mở Console (F12)
-2. Gõ `AzotaVIP` vào ô filter
-3. Xem danh sách endpoint đã intercept
-
----
-
-### Câu hỏi thường gặp (FAQ)
-
-#### 1. Tôi có cần làm gì sau khi cài script không?
-**Không.** Script chạy hoàn toàn tự động trong nền. Cài xong là dùng được ngay.
-
-#### 2. Làm sao biết script đã hoạt động?
-Mở Console (F12) → tìm `[AzotaVIP] Ready`. Nếu thấy là ổn.
-
-#### 3. Script có làm chậm trình duyệt không?
-Không. Script chỉ chạy 20-50ms mỗi lần có request phù hợp. Hoàn toàn không ảnh hưởng.
-
-#### 4. Tôi có bị khoá tài khoản không?
-Có thể. Script can thiệp API của azota.vn, vi phạm Điều khoản Dịch vụ. Đọc phần tuyên bố pháp lý ở trên.
-
-#### 5. Script có hoạt động trên điện thoại không?
+**5. Có hoạt động trên điện thoại không?**
 Chỉ Android (Kiwi Browser). iOS không hỗ trợ Tampermonkey.
 
-#### 6. Muốn tắt script tạm thời?
-Bấm icon 🎭 → Toggle switch để tắt/bật.
+**6. Muốn tắt tạm thời?**
+Bấm icon 🎭 → gạt công tắc tắt/bật.
 
-#### 7. VIP này có thật không?
-VIP là **giả ở client-side**. Server vẫn biết bạn không phải VIP. Chỉ trick trình duyệt của bạn.
+**7. VIP này có thật không?**
+**Không.** VIP chỉ **giả ở client-side**. Server vẫn biết bạn không phải VIP. Script chỉ trick trình duyệt của bạn.
 
-#### 8. Script có cần cập nhật?
-Nếu azota.vn đổi endpoint, script có thể ngừng hoạt động. Kiểm tra GitHub để cập nhật.
+**8. Script có cần cập nhật không?**
+Có. Nếu azota.vn đổi endpoint, script sẽ ngừng hoạt động. Theo dõi repo để cập nhật.
 
-#### 9. Đóng góp / báo lỗi ở đâu?
-📧 **skappafrost@gmail.com** hoặc [GitHub Issues](https://github.com/skappafrost/azota-vip-bypass/issues).
+**9. Báo lỗi / đóng góp ở đâu?**
+📧 [skappafrost@gmail.com](mailto:skappafrost@gmail.com) hoặc [GitHub Issues](https://github.com/skappafrost/azota-vip-bypass/issues).
 
-#### 10. Script an toàn không?
-Không gửi dữ liệu, không đọc cookie, không can thiệp file hệ thống. Tuy nhiên có rủi ro pháp lý (xem tuyên bố).
-
----
-
-### ⭐ ỦNG HỘ DỰ ÁN
-
-Nếu bạn thấy script hữu ích, hãy **star** ⭐ repo trên GitHub để ủng hộ nhé!
-
-Mọi góp ý, báo lỗi, hoặc đề xuất cải tiến, xin vui lòng liên hệ: **📧 skappafrost@gmail.com**
-
----
-
+**10. Script an toàn không?**
+Không gửi dữ liệu, không đọc cookie, không can thiệp file hệ thống. Nhưng có rủi ro pháp lý (xem phần pháp lý).
 
 ---
 
 ## 🇬🇧 ENGLISH
+
+### ⚖️ LEGAL DISCLAIMER (10 CLAUSES)
 
 > **⚠️ SERIOUS LEGAL WARNING — READ BEFORE USE**
 
@@ -216,124 +156,177 @@ This script is created **SOLELY FOR EDUCATIONAL AND SECURITY RESEARCH PURPOSES**
 
 **BY DOWNLOADING, INSTALLING, OR USING THIS SCRIPT, YOU AGREE TO ALL TERMS BELOW. IF YOU DO NOT AGREE, DO NOT USE.**
 
----
+**1. SOLE PURPOSE** — Only for security research, analysis, and education. Demonstrates how API responses can be forged client-side — a vulnerability online exam platforms must know about to protect their systems.
 
-### ⚖️ LEGAL DISCLAIMER (10 CLAUSES)
+**2. LEGAL VIOLATIONS** — This script intercepts and modifies server responses, which may constitute: **CFAA 18 U.S.C. § 1030**; **DMCA § 1201** (anti-circumvention); **Vietnam Penal Code 2015, Article 145** (illegal system access); **Vietnam Decree 15/2020/ND-CP**; **Breach of Terms of Service** of azota.vn; **Theft of Service** laws.
 
-#### 1. SOLE PURPOSE
-This script is **ONLY** for security research, analysis, and education. It demonstrates how API responses can be forged client-side — a vulnerability that online exam platforms need to be aware of to protect their systems.
+**3. USER ASSUMES FULL LIABILITY** — You and **only you** assume all legal liability: installing/using/distributing; account suspension, academic discipline, expulsion; civil lawsuits or criminal prosecution; fines and damages; device seizure for forensic investigation.
 
-#### 2. LEGAL VIOLATIONS
-This script **intercepts and modifies server responses**, which may constitute:
-- **Computer Fraud and Abuse Act (CFAA) 18 U.S.C. § 1030**
-- **Digital Millennium Copyright Act (DMCA) § 1201** — Anti-circumvention
-- **Vietnam Penal Code 2015, Article 145** — Illegal system access
-- **Vietnam Decree 15/2020/ND-CP** — IT administrative sanctions
-- **Breach of Terms of Service** of Azota.vn
-- **Theft of Service** laws in applicable jurisdictions
+**4. AUTHOR DISCLAIMS ALL LIABILITY** — The author (**@skappafrost**, **nexus**, **isvn**) and all contributors **ASSUME NO LIABILITY WHATSOEVER**: direct, indirect, incidental, consequential damages; data/account/educational loss; legal fees, court costs, settlements; emotional distress, reputational harm.
 
-#### 3. USER ASSUMES FULL LIABILITY
-You — and **only you** — assume all legal liability arising from:
-- Installing, using, or distributing this script
-- Account suspension, academic discipline, or expulsion
-- Civil lawsuits or criminal prosecution
-- Fines, damages, or other penalties
-- Device seizure for forensic investigation
+**5. NO AUTHORIZATION** — This script is **NOT** authorized, endorsed, or supported by azota.vn. Using it violates Azota's ToS and may result in **permanent account termination**.
 
-#### 4. AUTHOR DISCLAIMS ALL LIABILITY
-The author (**@skappafrost**, **nexus**, **isvn**) and all contributors **ASSUME NO LIABILITY WHATSOEVER**, including but not limited to:
-- Direct, indirect, incidental, or consequential damages
-- Data loss, account loss, or loss of educational opportunity
-- Legal fees, court costs, and settlement amounts
-- Emotional distress, reputational harm, or loss of goodwill
+**6. YOUR SYSTEMS ONLY** — Only run on accounts and tests you **legally own**. Never on someone else's account or data.
 
-#### 5. NO AUTHORIZATION
-This script is **NOT** authorized, endorsed, or supported by Azota.vn. Using it **violates Azota's Terms of Service** and may result in **permanent account termination**.
+**7. NO REDISTRIBUTION** — Do **not** distribute, sell, rent, or share this script. Sharing makes you liable for the recipient's actions.
 
-#### 6. YOUR SYSTEMS ONLY
-You may only run this script on accounts and exams that **you legally own**. Do not use on anyone else's account or data.
+**8. NON-COMMERCIAL** — Forbidden for any commercial purpose: selling "cheap VIP", "azota hack" services, or any monetisation.
 
-#### 7. NO REDISTRIBUTION
-You **may not** redistribute, sell, lease, or share this script in any form. Sharing the script with others makes you legally responsible for their actions.
+**9. ACCEPT ALL RISKS** — You have been **fully warned** and agree to **never sue, complain, or claim compensation** from the author under any circumstance.
 
-#### 8. NO COMMERCIAL USE
-Commercial use is strictly prohibited, including selling "cheap VIP" services, "hack azota" services, or any form of monetization.
+**10. DELETE ON DEMAND** — If azota.vn or authorities request removal, you commit to comply immediately.
 
-#### 9. ACCEPT ALL RISKS
-You have been **fully warned** of legal risks and agree **not to sue, not to claim, not to seek damages** from the author under any circumstances.
-
-#### 10. DELETE ON DEMAND
-If Azota.vn or authorities request the removal of this script, you agree to comply immediately.
-
----
-
-> **⚠️ NO ONE CAN PROTECT YOU FROM LEGAL CONSEQUENCES — NOT EVEN THE AUTHOR**
->
+> **⚠️ NO ONE CAN PROTECT YOU FROM LEGAL CONSEQUENCES — NOT EVEN THE AUTHOR.**
 > You have been warned. Think carefully before using.
 
----
-
-## 🔧 Installation (EDUCATIONAL USE ONLY)
+### Installation (EDUCATIONAL USE ONLY)
 
 1. Install [Tampermonkey](https://www.tampermonkey.net/) for your browser
 2. Open the raw script: `src/azota-vip-bypass.user.js`
-3. Tampermonkey will prompt installation — click **Install**
+3. Tampermonkey will prompt installation → click **Install**
 
-Or manually:
-1. Open Tampermonkey Dashboard → "Create a new script"
-2. Delete template code, paste the entire content of `src/azota-vip-bypass.user.js`
-3. Save with **Ctrl+S**
+Or manually: Dashboard → "Create a new script" → delete template → paste entire content of `src/azota-vip-bypass.user.js` → **Ctrl+S**
 
 ---
 
-## 🧠 How It Works (Technical Explanation)
+## 🔬 Phân tích kỹ thuật / Technical Analysis
 
-This script demonstrates **3 techniques** for client-side security research:
+### Kiến trúc phòng thủ bị phá
 
-### 1. XMLHttpRequest Interception
-```javascript
-// Hooks XMLHttpRequest.prototype.open and .send
-// On readystatechange (readyState === 4), modifies responseText
-// Uses Object.defineProperty to override getters for responseText and response
+Azota là một **Angular SPA**. Mọi quyết định "có cho phép tính năng X không" được thực hiện ở **3 lớp**, và script này nhắm vào lớp cuối:
+
 ```
-The script captures the URL in `open()`, then on completion, replaces the response with forged data before the page can read it.
-
-### 2. Fetch API Interception
-```javascript
-// Wraps window.fetch with a custom function
-// For matched URLs, clones the response, reads body, modifies, returns new Response()
+┌────────────────────────────────────────────────────────────────┐
+│  Lớp 1: Backend (không thể intercept)                          │
+│  ─ Server kiểm tra quyền thật khi xử lý request.               │
+│    Vd: khi bạn bấm "Nộp bài", server ghi điểm theo token thật. │
+└────────────────────────────────────────────────────────────────┘
+                              ▲
+                              │ HTTP response (JSON)
+                              ▼
+┌────────────────────────────────────────────────────────────────┐
+│  Lớp 2: API Response ← MỤC TIÊU CỦA SCRIPT NÀY                 │
+│  ─ Response JSON chứa cờ: data.isVip, data.mustViewAds...      │
+│  ─ Script hook XHR/fetch để SỬA cờ này trước khi Angular đọc.  │
+└────────────────────────────────────────────────────────────────┘
+                              ▲
+                              ▼
+┌────────────────────────────────────────────────────────────────┐
+│  Lớp 3: Angular Component                                     │
+│  ─ Đọc response → quyết định render: hiện quảng cáo? khoá nút? │
+│  ─ Nhận cờ đã bị sửa → render sai theo ý script.               │
+└────────────────────────────────────────────────────────────────┘
 ```
-The fetch wrapper intercepts the network response, processes it through the same `processResponse()` function, and returns a modified `Response` object.
 
-### 3. DOM Mutation Observation
+### 3 kỹ thuật chính
+
+**1. XMLHttpRequest interception** (Angular `HttpXhrBackend` dùng XHR)
+
 ```javascript
-// Uses MutationObserver to watch for dynamically inserted elements
-// Removes ad banners, VIP upgrade prompts, limitation overlays
+// Bắt URL trong open()
+const origOpen = XMLHttpRequest.prototype.open;
+XMLHttpRequest.prototype.open = function () {
+    this._aztUrl = arguments[1];
+    return origOpen.apply(this, arguments);
+};
+
+// Sửa response sau khi server trả về (readyState === 4)
+const origSend = XMLHttpRequest.prototype.send;
+XMLHttpRequest.prototype.send = function () {
+    // ... thêm listener readystatechange, gán this._aztFake
+};
+
+// Override getter để Angular đọc response đã sửa
+Object.defineProperty(XMLHttpRequest.prototype, 'responseText', {
+    get() {
+        if (this._aztFake !== undefined) return this._aztFake;
+        return descText.get.call(this);
+    },
+});
 ```
-Angular-based SPAs (like Azota) inject elements after initial load. The observer catches and hides them.
 
-### Endpoint Patterns Intercepted
+**2. Fetch API interception** (dự phòng nếu app dùng `withFetch()`)
 
-| Endpoint | Intercepted Value | Purpose |
-|----------|------------------|---------|
-| `/can-attempt-exam` | `value: true` | Bypass rush-hour restrictions |
-| `/CheckVipObject?objectType=exam` | `data: true` | Unlock VIP exam features |
-| `/MustViewAds` | `data: false` | Skip ad requirements |
-| `/CheckVipMustUpgrade` | `data: false` | Remove upgrade prompts |
-| `/GetMyPackage` | Full VIP subscription | Fake VIP status (teacher + student) |
-| `/GetPackageObjs` | Unlimited package | Show "purchased" VIP packages |
-| `/VipProduct` | `isVip: true` | Grant VIP product access |
-| DOM elements | Hidden via CSS | Remove ad/upgrade banners |
+```javascript
+const origFetch = window.fetch;
+window.fetch = function (input, init) {
+    // Nếu URL khớp pattern → trả Response giả thay vì gọi server
+    return Promise.resolve(new Response(build(name, url), {
+        status: 200, statusText: 'OK',
+        headers: { 'Content-Type': 'application/json' },
+    }));
+};
+```
 
----
+**3. DOM cleanup + chặn inject quảng cáo**
 
-## ⚠️ Limitations (Security Research Notes)
+```javascript
+// Chặn ngay lúc Angular cố append <script src="...shopie...">
+const origAppend = Node.prototype.appendChild;
+Node.prototype.appendChild = function (node) {
+    if (node.tagName === 'SCRIPT' && /shopie|googlesyndication/i.test(node.src)) {
+        return node;  // không append
+    }
+    return origAppend.apply(this, arguments);
+};
+// + MutationObserver ẩn banner/popup nâng cấp còn sót lại
+```
 
-- **Client-side only**: Server-side checks still apply — this only tricks YOUR browser
-- **Angular state**: Azota's Angular app also checks `window.__INITIAL_STATE__` and user cookies
-- **Detection possible**: Server can verify VIP status independently of client claims
-- **No server persistence**: Reloading the page re-triggers all intercepted calls
-- **No real authentication**: The fake `vipUserId` is invalid — real API calls requiring authentication will fail
+### Bảng endpoint intercept (verify live 2026-09-15)
+
+| Endpoint | Response thật | Sửa thành | Mục đích |
+|---|---|---|---|
+| `/api/FrontVip/CheckVipObject?objectType=exam` | `data:false` | `data:true` | UI tin bài thi do VIP tạo |
+| `/api/FrontExam/MustViewAds` | `data:true` | `data:false` | Bỏ yêu cầu xem quảng cáo |
+| `/api/VipPackage/GetMyPackage` | `isVipStudent:false` | full VIP subscription | UI VIP |
+| `/api/VipPackage/GetPackageObjs` | `objs:[]` | gói unlimited | UI danh sách gói |
+| `/api/VipMustUpgrade/CheckVipMustUpgrade` | — | `data:false` | Xoá popup nâng cấp |
+| `/ai/api/v1/student-practice/can-attempt-exam` | `value:true` | `value:true` | Giữ nguyên (đã mở) |
+| `/api/PayAsGoPayment/GetCurrentPoint` | `totalPoint:0` | `totalPoint:999999` | UI điểm dùng |
+| `/azota-adsword/.../FrontProduct/ListRandomProducts` | ads objs | `objs:[]` | **Không còn quảng cáo render** |
+| `/azota-adsword/.../FrontProduct/ViewProductAds` | `status:1` | `status:1` | Passthrough an toàn |
+| DOM elements | — | ẩn bằng CSS | Xoá banner/popup |
+
+### 📌 Kết quả verify thực tế (2026-09-15)
+
+Đợt nghiên cứu gần nhất trên exam `rdojsx` (Vật Lí 11) cho thấy **một điều trái với kỳ vọng**:
+
+| Kỳ vọng | Thực tế |
+|---|---|
+| "Bắt đầu thi" bị paywall chặn | ❌ **KHÔNG.** Click → `CheckVipObject` + `MustViewAds` + `can-attempt-exam` → `FrontExam/InitData` → **377 câu hỏi load bình thường** |
+| "Bỏ quảng cáo" là nút mở khoá | ❌ Chỉ là banner quảng cáo |
+| Có combo-package paywall | ❌ Không thấy endpoint combo nào được gọi cho exam này |
+
+**Hàm gate trong bundle** (`main.f318e87f56919157.js`):
+
+```javascript
+checkDocumentCreatedByVip() {
+    // gate = CheckVipObject.data && !MustViewAds.data
+    combineLatest([checkVipObject(hashId, 'exam'), mustViewAds(hashId)])
+      .subscribe(([vip, ads]) => next(vip.data && !ads.data));
+}
+checkIsVipForAzotaAds() {
+    // nếu vipSubscriptionObj.isVipStudent → không load ads
+    // ngược lại → checkDocumentCreatedByVip()
+}
+```
+
+→ Script này thực sự giải quyết: **quảng cáo** (shopie + Google AdSense) và **UI paywall VIP**. Nó không (và không cần) "mở khoá" việc bắt đầu thi, vì gate đó bản thân nó đã mở.
+
+### ⚠️ Limitations — giới hạn kỹ thuật
+
+| Kiểu kiểm tra | Intercept được? |
+|---|---|
+| Frontend UI toggle (ẩn/hiện nút) | ✅ Có |
+| Frontend route guard (chuyển hướng sang trang nâng cấp) | ✅ Có |
+| **Backend quota check** (giới hạn tải, dung lượng) | ❌ **Không** — server kiểm tra |
+| **Backend capability check** (nộp bài, ưu tiên) | ❌ **Không** — server kiểm tra |
+| Server verify độc lập VIP status | ❌ Server luôn biết sự thật |
+
+- **Client-side only**: trick được trình duyệt của bạn, không trick được server.
+- **Detection possible**: server có thể đối chiếu claim VS server state.
+- **No persistence**: reload page → tất cả intercept chạy lại từ đầu.
+- **Endpoint drift**: azota.vn đổi endpoint → script chết, cần cập nhật.
 
 ---
 
@@ -342,35 +335,44 @@ Angular-based SPAs (like Azota) inject elements after initial load. The observer
 ```
 azota-vip-bypass/
 ├── src/
-│   └── azota-vip-bypass.user.js   # Main script (Tampermonkey)
+│   └── azota-vip-bypass.user.js   # Main Tampermonkey script (v2.0.0)
+├── scripts/
+│   ├── create_repo.py             # Repo bootstrap helper
+│   └── insert_guide_v2.py         # README generator helper
+├── .github/ISSUE_TEMPLATE/
+│   ├── bug_report.md
+│   └── feature_request.md
 ├── README.md                      # This file
-├── LICENSE                        # MIT License (no warranty)
-├── package.json                   # npm metadata
-└── .github/
-    └── ISSUE_TEMPLATE/
-        ├── bug_report.md          # Bug report template
-        └── feature_request.md     # Feature request template
+├── LICENSE                        # MIT (NO WARRANTY)
+└── package.json
 ```
+
+## 🔒 Ghi chú phòng thủ / Defensive Notes
+
+Repo này tồn tại để minh hoạ **một bài học bảo mật cụ thể**:
+
+1. **Không bao giờ tin response ở client.** Mọi quyết định phân quyền phải được **server kiểm tra lại** ở đúng lúc xử lý request. UI chỉ là gợi ý, không phải sự thật.
+2. **Quảng cáo dựa trên cờ response** (`MustViewAds`, `showForVip`) là **bảo mật giả**: xoá cờ ở client = xoá quảng cáo. Nếu doanh thu phụ thuộc vào nó, phải verify server-side ở điểm serving, không phải ở UI.
+3. **Response schema là thông tin nhạy cảm.** Bundle JS để lộ toàn bộ endpoint + tên field (`isVipStudent`, `vipSubscriptionObj`, `mustViewAds`...), kẻ tấn công chỉ việc map ngược lại. Obfuscate bundle và dùng field tên ngẫu nhiên/đổi phiên bản để tăng chi phí.
+4. **Tampermonkey chạy isolated world, CSP không chặn được.** Nếu cần chống injection, phải dùng `Content-Security-Policy` + server-side check, không rely vào CSP alone.
+5. **Freemium gating phải server-enforced.** Mọi tính năng "VIP" thực sự (tải xuống, dung lượng, export) phải bị từ chối ở backend khi request không có quyền hợp lệ.
 
 ---
 
 ## 📜 License
 
-This project is licensed under the **MIT License** — see [LICENSE](LICENSE).
-
-**NO WARRANTY. USE AT YOUR OWN RISK. THE AUTHOR ASSUMES NO LIABILITY.**
+**MIT License — NO WARRANTY. USE AT YOUR OWN RISK. THE AUTHOR ASSUMES NO LIABILITY.** Xem [LICENSE](LICENSE).
 
 ---
+
+<div align="center">
 
 ### ⭐ ỦNG HỘ DỰ ÁN
 
-Nếu bạn thấy script này hữu ích cho mục đích nghiên cứu, hãy **star** ⭐ repo để ủng hộ nhé!
+Nếu repo này giúp bạn hiểu thêm về bảo mật web, hãy **star** ⭐ để ủng hộ.
 
-Mọi góp ý, báo lỗi, hoặc đề xuất cải tiến, xin vui lòng liên hệ qua email:
-**📧 skappafrost@gmail.com**
+Mọi góp ý / báo lỗi / đề xuất: **📧 [skappafrost@gmail.com](mailto:skappafrost@gmail.com)**
 
----
+⚠️ **FOR EDUCATIONAL RESEARCH ONLY** · Use at your own risk · The author assumes no liability
 
-<p align="center">
-  <sub>⚠️ FOR EDUCATIONAL RESEARCH ONLY · Use at your own risk · The author assumes no liability</sub>
-</p>
+</div>
